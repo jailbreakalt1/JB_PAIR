@@ -7,18 +7,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
     :root {
-      --panel: rgba(9, 22, 44, 0.55);
-
-      --bg-1: #03060f;
-      --bg-2: #071229;
-      --panel: rgba(9, 22, 44, 0.58);
-      --panel-edge: rgba(184, 232, 255, 0.24);
-      --text: #e6f8ff;
-      --muted: #9bc5d8;
-      --accent: #60ffd8;
-      --danger: #ff6d8f;
-      --glass: rgba(208, 245, 255, 0.12);
-      --glass-strong: rgba(233, 248, 255, 0.2);
+      --bg-1: #050505;
+      --bg-2: #121212;
+      --panel: rgba(20, 20, 20, 0.86);
+      --panel-edge: rgba(255, 255, 255, 0.22);
+      --text: #f2f2f2;
+      --muted: #b6b6b6;
+      --accent: #ffffff;
+      --danger: #ff8f8f;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-strong: rgba(255, 255, 255, 0.18);
       --shadow: 0 18px 55px rgba(0, 0, 0, 0.42);
     }
 
@@ -47,8 +45,8 @@
       height: 100vh;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.9;
-      background: radial-gradient(circle at top, #0f2642 0%, #02050d 55%, #000 100%);
+      opacity: 0.75;
+      background: radial-gradient(circle at top, #2a2a2a 0%, #0b0b0b 55%, #000 100%);
     }
 
     .matrix-bg {
@@ -70,22 +68,13 @@
       white-space: pre-line;
       opacity: 0.8;
       text-shadow: 0 0 8px currentColor, 0 0 18px currentColor;
-      animation: fall linear infinite, hueShift 3.5s ease-in-out infinite;
+      animation: fall linear infinite;
       filter: saturate(1.2);
     }
 
     @keyframes fall {
       from { transform: translateY(-20vh); }
       to { transform: translateY(145vh); }
-    }
-
-    @keyframes hueShift {
-      0% { color: #00ffff; }
-      20% { color: #ffff00; }
-      40% { color: #7fff00; }
-      60% { color: #ff00ff; }
-      80% { color: #a855f7; }
-      100% { color: #ffffff; }
     }
 
     .container {
@@ -95,10 +84,10 @@
       max-width: 500px;
       padding: 28px;
       border-radius: 20px;
-      background: linear-gradient(145deg, var(--panel), rgba(6, 18, 34, 0.44));
+      background: linear-gradient(145deg, var(--panel), rgba(50, 50, 50, 0.55));
       border: 1px solid var(--panel-edge);
       backdrop-filter: blur(18px) saturate(120%);
-      background: linear-gradient(145deg, var(--panel), rgba(6, 18, 34, 0.48));
+      background: linear-gradient(145deg, var(--panel), rgba(64, 64, 64, 0.45));
       border: 1px solid var(--panel-edge);
       backdrop-filter: blur(22px) saturate(120%);
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.16);
@@ -117,19 +106,19 @@
       display: grid;
       place-items: center;
       font-size: 28px;
-      color: #e8feff;
-      background: linear-gradient(135deg, rgba(120, 255, 230, 0.2), rgba(165, 99, 255, 0.15));
-      border: 1px solid rgba(213, 249, 255, 0.35);
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(130, 130, 130, 0.2));
+      border: 1px solid rgba(255, 255, 255, 0.35);
       backdrop-filter: blur(16px);
-      box-shadow: inset 0 0 18px rgba(201, 255, 241, 0.22), 0 10px 22px rgba(0, 0, 0, 0.35);
+      box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.2), 0 10px 22px rgba(0, 0, 0, 0.35);
     }
 
     .title {
       font-size: 28px;
       letter-spacing: 0.12em;
       font-weight: 800;
-      color: #dff8ff;
-      text-shadow: 0 0 20px rgba(151, 255, 234, 0.28);
+      color: #f6f6f6;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
       margin-bottom: 8px;
     }
 
@@ -144,10 +133,10 @@
     .copy-btn,
     .code-display,
     .qr-display {
-      background: linear-gradient(140deg, var(--glass), rgba(206, 228, 255, 0.06));
-      border: 1px solid rgba(198, 241, 255, 0.24);
+      background: linear-gradient(140deg, var(--glass), rgba(255, 255, 255, 0.05));
+      border: 1px solid rgba(255, 255, 255, 0.24);
       backdrop-filter: blur(16px) saturate(130%);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 10px 20px rgba(2, 14, 26, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 10px 20px rgba(0, 0, 0, 0.38);
     }
 
     .toggle-container {
@@ -174,24 +163,24 @@
       cursor: pointer;
       font-size: 14px;
       color: var(--muted);
-      border: 1px solid rgba(198, 241, 255, 0.18);
-      background: linear-gradient(140deg, rgba(208, 245, 255, 0.08), rgba(206, 228, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: linear-gradient(140deg, rgba(255, 255, 255, 0.08), rgba(192, 192, 192, 0.03));
       backdrop-filter: blur(14px);
       transition: all 0.28s ease;
     }
 
     .toggle-option.active {
-      color: #071224;
-      border-color: rgba(167, 253, 237, 0.7);
-      background: linear-gradient(150deg, rgba(142, 255, 231, 0.95), rgba(236, 249, 255, 0.84));
-      box-shadow: 0 4px 18px rgba(106, 255, 229, 0.26);
+      color: #0e0e0e;
+      border-color: rgba(255, 255, 255, 0.75);
+      background: linear-gradient(150deg, rgba(240, 240, 240, 0.95), rgba(188, 188, 188, 0.84));
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.18);
       font-weight: 700;
     }
 
     .toggle-option:not(.active):hover {
-      color: #d9f5ff;
-      border-color: rgba(183, 251, 255, 0.45);
-      background: rgba(194, 237, 255, 0.12);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .input-group {
@@ -208,7 +197,7 @@
       display: block;
       margin-bottom: 8px;
       font-size: 13px;
-      color: #c4ebff;
+      color: #dadada;
       font-weight: 500;
     }
 
@@ -216,17 +205,17 @@
       width: 100%;
       padding: 12px 14px;
       border-radius: 14px;
-      color: #e8f9ff;
+      color: #f3f3f3;
       font-size: 15px;
       transition: 0.25s ease;
       outline: none;
     }
 
-    .input-field::placeholder { color: #7fb2c5; }
+    .input-field::placeholder { color: #8d8d8d; }
 
     .input-field:focus {
-      border-color: rgba(132, 255, 230, 0.62);
-      box-shadow: 0 0 0 2px rgba(120, 255, 216, 0.2), inset 0 0 12px rgba(140, 244, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.62);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16), inset 0 0 12px rgba(255, 255, 255, 0.18);
     }
 
     .generate-btn,
@@ -234,8 +223,8 @@
       width: 100%;
       padding: 12px;
       border-radius: 14px;
-      color: #eaffff;
-      border: 1px solid rgba(198, 241, 255, 0.28);
+      color: #f4f4f4;
+      border: 1px solid rgba(255, 255, 255, 0.28);
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
@@ -248,19 +237,19 @@
 
     .generate-btn {
       margin-bottom: 14px;
-      background: linear-gradient(140deg, rgba(106, 255, 215, 0.22), rgba(164, 104, 255, 0.2));
+      background: linear-gradient(140deg, rgba(255, 255, 255, 0.2), rgba(120, 120, 120, 0.22));
     }
 
     .copy-btn {
       margin-top: 12px;
-      background: linear-gradient(140deg, rgba(245, 255, 255, 0.14), rgba(104, 241, 255, 0.12));
+      background: linear-gradient(140deg, rgba(255, 255, 255, 0.16), rgba(130, 130, 130, 0.16));
     }
 
     .generate-btn:hover,
     .copy-btn:hover {
       transform: translateY(-2px) scale(1.01);
-      border-color: rgba(183, 251, 255, 0.65);
-      box-shadow: 0 12px 28px rgba(5, 18, 31, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+      border-color: rgba(255, 255, 255, 0.65);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.32);
     }
 
     .code-display {
@@ -273,7 +262,7 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      color: #d6f6ff;
+      color: #f2f2f2;
     }
 
     .qr-display {
@@ -293,7 +282,7 @@
     }
 
     .qr-instructions {
-      color: #b8deee;
+      color: #d2d2d2;
       font-size: 13px;
       line-height: 1.5;
     }
@@ -308,7 +297,7 @@
     }
 
     .loading i {
-      color: #b2fff2;
+      color: #efefef;
       font-size: 23px;
       animation: spin 1s linear infinite;
     }
@@ -321,7 +310,7 @@
     .footer {
       text-align: center;
       margin-top: 16px;
-      color: rgba(169, 212, 231, 0.72);
+      color: rgba(196, 196, 196, 0.72);
       font-size: 12px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -397,7 +386,7 @@
     const matrixCanvas = document.getElementById('matrixCanvas');
     const matrixCtx = matrixCanvas.getContext('2d');
     const matrixChars = 'JAILBREAK';
-    const matrixPalette = ['#7fff00', '#00ff7f', '#00ffaa', '#00ffff', '#a855f7', '#ff00ff', '#ffff00', '#ffffff'];
+    const matrixPalette = ['#9a9a9a', '#cccccc', '#f2f2f2', '#777777', '#b8b8b8', '#e5e5e5'];
     let drops = [];
     let fontSize = 18;
     let columns = 0;
