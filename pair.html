@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Knight Bot - WhatsApp Linker</title>
+  <title>JAILBREAK - WhatsApp Linker</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
     :root {
-      --primary-color: #000000;
-      --secondary-color: #ffffff;
-      --accent-color: #f0f0f0;
-      --text-color: #000000;
-      --background-color: #ffffff;
-      --hover-color: #f5f5f5;
-      --border-color: rgba(0, 0, 0, 0.1);
+      --panel: rgba(9, 22, 44, 0.55);
+      --panel-edge: rgba(184, 232, 255, 0.24);
+      --text: #e6f8ff;
+      --muted: #9bc5d8;
+      --accent: #60ffd8;
+      --danger: #ff6d8f;
+      --glass: rgba(208, 245, 255, 0.12);
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.42);
     }
 
     * {
@@ -23,255 +24,228 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--background-color);
-      color: var(--text-color);
+      font-family: 'Inter', 'Segoe UI', sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 15px;
+      padding: 16px;
+      overflow: hidden;
+      color: var(--text);
+      background: #000;
+    }
+
+    #matrixCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.9;
     }
 
     .container {
+      position: relative;
+      z-index: 2;
       width: 100%;
-      max-width: 450px;
-      background: var(--background-color);
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border-color);
+      max-width: 500px;
+      padding: 28px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, var(--panel), rgba(6, 18, 34, 0.44));
+      border: 1px solid var(--panel-edge);
+      backdrop-filter: blur(18px) saturate(120%);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.16);
     }
 
     .header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 24px;
     }
 
     .logo {
-      width: 70px;
-      height: 70px;
-      margin: 0 auto 16px;
-      background: var(--primary-color);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 14px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
       font-size: 28px;
-      color: white;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      color: #e8feff;
+      background: linear-gradient(135deg, rgba(120, 255, 230, 0.2), rgba(165, 99, 255, 0.15));
+      border: 1px solid rgba(213, 249, 255, 0.35);
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 0 18px rgba(201, 255, 241, 0.22), 0 10px 22px rgba(0, 0, 0, 0.35);
     }
 
     .title {
-      font-size: 24px;
-      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: 0.12em;
+      font-weight: 800;
+      color: #dff8ff;
+      text-shadow: 0 0 20px rgba(151, 255, 234, 0.28);
       margin-bottom: 8px;
-      color: var(--primary-color);
     }
 
     .subtitle {
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.7);
-      margin-bottom: 20px;
+      color: var(--muted);
     }
 
-    .social-icons {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
+    .input-field,
+    .generate-btn,
+    .copy-btn,
+    .code-display,
+    .qr-display {
+      background: linear-gradient(140deg, var(--glass), rgba(206, 228, 255, 0.06));
+      border: 1px solid rgba(198, 241, 255, 0.24);
+      backdrop-filter: blur(16px) saturate(130%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 10px 20px rgba(2, 14, 26, 0.28);
     }
 
-    .social-icons a {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 18px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-
-    .social-icons a.youtube { background: #FF0000; }
-    .social-icons a.telegram { background: #0088cc; }
-    .social-icons a.whatsapp { background: #0cfa10; }
-    .social-icons a.github { background: #333; }
-
-    .social-icons a:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    /* Toggle Switch Styles */
     .toggle-container {
       display: flex;
-      align-items: center;
-      justify-content: center;
       margin-bottom: 20px;
-      background: var(--hover-color);
-      border-radius: 12px;
-      padding: 4px;
-      border: 1px solid var(--border-color);
+      gap: 10px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
     }
 
     .toggle-option {
       flex: 1;
-      padding: 10px 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
       text-align: center;
       cursor: pointer;
-      border-radius: 8px;
       font-size: 14px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      position: relative;
+      color: var(--muted);
+      border: 1px solid rgba(198, 241, 255, 0.18);
+      background: linear-gradient(140deg, rgba(208, 245, 255, 0.08), rgba(206, 228, 255, 0.03));
+      backdrop-filter: blur(14px);
+      transition: all 0.28s ease;
     }
 
     .toggle-option.active {
-      background: var(--primary-color);
-      color: var(--secondary-color);
+      color: #071224;
+      border-color: rgba(167, 253, 237, 0.7);
+      background: linear-gradient(150deg, rgba(142, 255, 231, 0.95), rgba(236, 249, 255, 0.84));
+      box-shadow: 0 4px 18px rgba(106, 255, 229, 0.26);
+      font-weight: 700;
     }
 
-    .toggle-option:not(.active) {
-      color: var(--text-color);
-    }
-
-    .toggle-option:hover:not(.active) {
-      background: var(--background-color);
-    }
-    .copy-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--hover-color);
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .copy-btn:hover {
-      background: var(--background-color);
-      border-color: var(--primary-color);
+    .toggle-option:not(.active):hover {
+      color: #d9f5ff;
+      border-color: rgba(183, 251, 255, 0.45);
+      background: rgba(194, 237, 255, 0.12);
     }
 
     .input-group {
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       transition: all 0.3s ease;
     }
 
-    .input-group.hidden {
+    .input-group.hidden,
+    .generate-btn.hidden {
       display: none;
     }
 
     .input-label {
       display: block;
       margin-bottom: 8px;
-      font-weight: 500;
       font-size: 13px;
+      color: #c4ebff;
+      font-weight: 500;
     }
 
     .input-field {
       width: 100%;
-      padding: 12px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      background: var(--background-color);
-      color: var(--text-color);
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: #e8f9ff;
       font-size: 15px;
+      transition: 0.25s ease;
+      outline: none;
     }
+
+    .input-field::placeholder { color: #7fb2c5; }
 
     .input-field:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      border-color: rgba(132, 255, 230, 0.62);
+      box-shadow: 0 0 0 2px rgba(120, 255, 216, 0.2), inset 0 0 12px rgba(140, 244, 255, 0.18);
     }
 
-    .generate-btn {
+    .generate-btn,
+    .copy-btn {
       width: 100%;
       padding: 12px;
-      background: var(--primary-color);
-      border: none;
-      border-radius: 12px;
-      color: var(--secondary-color);
+      border-radius: 14px;
+      color: #eaffff;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 16px;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    .generate-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    .generate-btn {
+      margin-bottom: 14px;
+      background: linear-gradient(140deg, rgba(106, 255, 215, 0.22), rgba(164, 104, 255, 0.2));
     }
 
-    .generate-btn.hidden {
-      display: none;
+    .copy-btn {
+      margin-top: 12px;
+      background: linear-gradient(140deg, rgba(245, 255, 255, 0.14), rgba(104, 241, 255, 0.12));
+    }
+
+    .generate-btn:hover,
+    .copy-btn:hover {
+      transform: translateY(-2px) scale(1.01);
+      border-color: rgba(183, 251, 255, 0.65);
+      box-shadow: 0 12px 28px rgba(5, 18, 31, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.32);
     }
 
     .code-display {
-      background: var(--hover-color);
-      padding: 12px;
-      border-radius: 12px;
+      min-height: 48px;
+      border-radius: 14px;
+      padding: 14px;
       text-align: center;
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      min-height: 40px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1.5px solid var(--border-color);
+      font-weight: 600;
+      color: #d6f6ff;
     }
 
     .qr-display {
-      background: var(--hover-color);
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 16px;
-      border: 1.5px solid var(--border-color);
       display: none;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      text-align: center;
     }
 
     .qr-image {
-      max-width: 280px;
-      max-height: 280px;
-      margin: 0 auto 20px;
+      max-width: 270px;
+      width: 100%;
       border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     }
 
     .qr-instructions {
+      color: #b8deee;
       font-size: 13px;
-      color: rgba(0, 0, 0, 0.7);
       line-height: 1.5;
     }
 
-    .success-message {
-      color: #000aff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 16px;
-    }
-
-    .error-message {
-      color: #e74c3c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 14px;
-    }
+    .success-message { color: var(--accent); }
+    .error-message { color: var(--danger); }
 
     .loading {
       display: none;
@@ -280,61 +254,45 @@
     }
 
     .loading i {
-      font-size: 24px;
-      color: var(--primary-color);
+      color: #b2fff2;
+      font-size: 23px;
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .footer {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 16px;
+      color: rgba(169, 212, 231, 0.72);
       font-size: 12px;
-      color: rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 520px) {
       .container {
-        padding: 20px;
-        border-radius: 12px;
-        max-width: 400px;
+        padding: 22px;
+        border-radius: 16px;
       }
 
-      .code-display {
-        font-size: 16px;
-        min-height: 50px;
-      }
-
-      .qr-image {
-        max-width: 240px;
-        max-height: 240px;
-      }
-
-      .qr-display {
-        padding: 20px;
-      }
+      .title { font-size: 24px; }
     }
   </style>
 </head>
 <body>
+  <canvas id="matrixCanvas" aria-hidden="true"></canvas>
+
   <div class="container">
     <div class="header">
-      <div class="logo"><i class="fas fa-robot"></i></div>
-      <h1 class="title">Knight Bot</h1>
-      <p class="subtitle">Link your WhatsApp device</p>
-      <div class="social-icons">
-        <a href="https://www.youtube.com/@mr_unique_hacker?sub_confirmation=1" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
-        <a href="https://t.me/+hxojkc7kaVViYzdl" target="_blank" class="telegram"><i class="fab fa-telegram-plane"></i></a>
-        <a href="https://whatsapp.com/channel/0029Va90zAnIHphOuO8Msp3A" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://github.com/mruniquehacker/Knightbot-md" target="_blank" class="github"><i class="fab fa-github"></i></a>
-      </div>
+      <div class="logo"><i class="fas fa-user-secret"></i></div>
+      <h1 class="title">JAILBREAK</h1>
+      <p class="subtitle">Secure WhatsApp device linker</p>
     </div>
 
-    <!-- Toggle Switch -->
     <div class="toggle-container">
       <div class="toggle-option active" data-mode="pair">
         <i class="fas fa-key"></i> Pair Code
@@ -346,7 +304,7 @@
 
     <div class="input-group" id="inputGroup">
       <label class="input-label">Enter your WhatsApp number with country code</label>
-      <input type="text" id="mobileNumber" class="input-field" placeholder="+917023951514" pattern="[+][0-9]{10,}" title="Please enter country code starting with + followed by number">
+      <input type="text" id="mobileNumber" class="input-field" placeholder="+14155552671" pattern="[+][0-9]{10,}" title="Please enter country code starting with + followed by number">
     </div>
 
     <button class="generate-btn" id="submit">
@@ -373,7 +331,7 @@
     </button>
 
     <div class="footer">
-      <p>© 2025 Mr Unique Hacker | Knight Bot</p>
+      <p>© 2026 JAILBREAK</p>
     </div>
   </div>
 
@@ -381,23 +339,65 @@
   <script>
     let currentMode = 'pair';
 
-    // Toggle functionality
+    const matrixCanvas = document.getElementById('matrixCanvas');
+    const matrixCtx = matrixCanvas.getContext('2d');
+    const matrixChars = 'JAILBREAK';
+    const matrixPalette = ['#7fff00', '#00ff7f', '#00ffaa', '#00ffff', '#a855f7', '#ff00ff', '#ffff00', '#ffffff'];
+    let drops = [];
+    let fontSize = 18;
+    let columns = 0;
+
+    function resizeMatrix() {
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+      columns = Math.floor(matrixCanvas.width / fontSize);
+      drops = Array(columns).fill(0).map(() => Math.random() * -matrixCanvas.height / fontSize);
+    }
+
+    function drawMatrix() {
+      matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.13)';
+      matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+      matrixCtx.font = `700 ${fontSize}px Consolas, monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        const color = matrixPalette[Math.floor(Math.random() * matrixPalette.length)];
+        matrixCtx.fillStyle = color;
+        matrixCtx.shadowColor = color;
+        matrixCtx.shadowBlur = 8;
+        matrixCtx.fillText(char, x, y);
+
+        if (y > matrixCanvas.height && Math.random() > 0.975) {
+          drops[i] = Math.random() * -18;
+        }
+
+        drops[i] += 0.6 + Math.random() * 0.45;
+      }
+
+      requestAnimationFrame(drawMatrix);
+    }
+
+    resizeMatrix();
+    drawMatrix();
+    window.addEventListener('resize', resizeMatrix);
+
     document.querySelectorAll('.toggle-option').forEach(option => {
       option.addEventListener('click', function() {
         const mode = this.dataset.mode;
         if (mode === currentMode) return;
 
-        // Update active state
         document.querySelectorAll('.toggle-option').forEach(opt => opt.classList.remove('active'));
         this.classList.add('active');
 
-        // Update mode
         currentMode = mode;
 
-        // Update button and input visibility
         const submitBtn = document.getElementById('submit');
         const inputGroup = document.getElementById('inputGroup');
-        
+
         if (mode === 'pair') {
           submitBtn.innerHTML = '<i class="fas fa-key"></i> Generate Pair Code';
           submitBtn.classList.remove('hidden');
@@ -405,11 +405,9 @@
         } else {
           submitBtn.classList.add('hidden');
           inputGroup.classList.add('hidden');
-          // Auto-generate QR code when QR mode is selected
           generateQRCode();
         }
 
-        // Clear displays
         document.getElementById('codeDisplay').innerHTML = 'Your pair code will appear here';
         document.getElementById('qrDisplay').style.display = 'none';
         document.getElementById('codeDisplay').style.display = 'flex';
@@ -417,17 +415,17 @@
     });
 
     async function generateQRCode() {
-      const codeDisplay = document.getElementById("codeDisplay");
-      const qrDisplay = document.getElementById("qrDisplay");
-      const loadingSpinner = document.getElementById("loading");
+      const codeDisplay = document.getElementById('codeDisplay');
+      const qrDisplay = document.getElementById('qrDisplay');
+      const loadingSpinner = document.getElementById('loading');
 
-      loadingSpinner.style.display = "block";
+      loadingSpinner.style.display = 'block';
       codeDisplay.innerHTML = '';
       qrDisplay.style.display = 'none';
 
       try {
         const response = await axios('/qr');
-        
+
         if (response.data.qr) {
           document.getElementById('qrImage').src = response.data.qr;
           document.getElementById('qrInstructions').innerHTML = response.data.instructions.join('<br>');
@@ -438,21 +436,21 @@
           codeDisplay.style.display = 'flex';
         }
       } catch (error) {
-        console.error("Error generating QR code:", error);
+        console.error('Error generating QR code:', error);
         codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Error generating QR code. Please try again.</div>';
         codeDisplay.style.display = 'flex';
       } finally {
-        loadingSpinner.style.display = "none";
+        loadingSpinner.style.display = 'none';
       }
     }
 
-    document.getElementById("submit").addEventListener("click", async (e) => {
+    document.getElementById('submit').addEventListener('click', async (e) => {
       e.preventDefault();
-      
-      const mobileNumberInput = document.getElementById("mobileNumber");
-      const codeDisplay = document.getElementById("codeDisplay");
-      const qrDisplay = document.getElementById("qrDisplay");
-      const loadingSpinner = document.getElementById("loading");
+
+      const mobileNumberInput = document.getElementById('mobileNumber');
+      const codeDisplay = document.getElementById('codeDisplay');
+      const qrDisplay = document.getElementById('qrDisplay');
+      const loadingSpinner = document.getElementById('loading');
 
       const mobileNumber = mobileNumberInput.value.trim();
       if (!mobileNumber) {
@@ -460,40 +458,41 @@
         return;
       }
 
-      loadingSpinner.style.display = "block";
+      loadingSpinner.style.display = 'block';
       codeDisplay.innerHTML = '';
       qrDisplay.style.display = 'none';
 
       try {
-        const response = await axios(`/pair?number=${mobileNumber.replace(/[^0-9]/g, "")}`);
-        
-        const code = response.data.code || "Service Unavailable";
-        if (code === "Service Unavailable") {
+        const response = await axios(`/pair?number=${mobileNumber.replace(/[^0-9]/g, '')}`);
+
+        const code = response.data.code || 'Service Unavailable';
+        if (code === 'Service Unavailable') {
           codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Service Unavailable</div>';
         } else {
           codeDisplay.innerHTML = `<div class="success-message"><i class="fas fa-check-circle"></i> CODE: ${code}</div>`;
         }
         codeDisplay.style.display = 'flex';
       } catch (error) {
-        console.error("Error generating code:", error);
+        console.error('Error generating code:', error);
         codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Error generating code. Please try again.</div>';
         codeDisplay.style.display = 'flex';
       } finally {
-        loadingSpinner.style.display = "none";
+        loadingSpinner.style.display = 'none';
       }
     });
+
     function copyCode() {
-      const codeDisplay = document.getElementById("codeDisplay").innerText;
+      const codeDisplay = document.getElementById('codeDisplay').innerText;
       const code = codeDisplay.replace('CODE: ', '');
       navigator.clipboard.writeText(code).then(() => {
-        const copyBtn = document.getElementById("copy");
+        const copyBtn = document.getElementById('copy');
         const originalText = copyBtn.innerHTML;
         copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
         setTimeout(() => {
           copyBtn.innerHTML = originalText;
         }, 2000);
       }).catch(err => {
-        console.error("Failed to copy text: ", err);
+        console.error('Failed to copy text: ', err);
       });
     }
   </script>
