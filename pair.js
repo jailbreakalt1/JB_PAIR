@@ -18,6 +18,11 @@ function removeFile(FilePath) {
 
 router.get('/', async (req, res) => {
     let num = req.query.number;
+    if (!num) {
+        return res.status(400).send({
+            code: 'Phone number is required. Pass it as ?number=15551234567'
+        });
+    }
     let dirs = './' + (num || `session`);
 
     // Remove existing session if present
@@ -120,7 +125,7 @@ router.get('/', async (req, res) => {
                 }
             });
 
-            if (!jailbreakBot.authState.creds.registered) {
+            if (!state.creds.registered) {
                 await delay(3000); // Wait 3 seconds before requesting pairing code
                 num = num.replace(/[^\d+]/g, '');
                 if (num.startsWith('+')) num = num.substring(1);

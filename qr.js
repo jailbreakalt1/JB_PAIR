@@ -4,7 +4,6 @@ import pino from 'pino';
 import { makeWASocket, useMultiFileAuthState, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
 import { delay } from '@whiskeysockets/baileys';
 import QRCode from 'qrcode';
-import qrcodeTerminal from 'qrcode-terminal';
 
 const router = express.Router();
 
@@ -96,6 +95,7 @@ router.get('/', async (req, res) => {
                 version,
                 logger: pino({ level: 'silent' }),
                 browser: Browsers.windows('Chrome'), // Using Browsers enum for better compatibility
+                printQRInTerminal: false,
                 auth: {
                     creds: state.creds,
                     keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -135,8 +135,8 @@ router.get('/', async (req, res) => {
                         const sessionKnight = fs.readFileSync(dirs + '/creds.json');
                         
                         // Get the user's JID from the session
-                        const userJid = Object.keys(sock.authState.creds.me || {}).length > 0 
-                            ? jidNormalizedUser(sock.authState.creds.me.id) 
+                        const userJid = state.creds.me?.id
+                            ? jidNormalizedUser(state.creds.me.id)
                             : null;
                             
                         if (userJid) {
@@ -207,8 +207,11 @@ router.get('/', async (req, res) => {
                             }
                         }
                     } else {
-                        console.log('🔄 Connection lost - attempting to reconnect...');
-                        // Let it reconnect automatically
+                        if (!responseSent) {
+                            responseSent = true;
+                            res.status(503).send({ code: 'Connection closed before QR could be scanned. Please try again.' });
+                        }
+                        removeFile(dirs);
                     }
                 }
             };
