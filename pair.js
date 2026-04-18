@@ -1,7 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import pino from 'pino';
-import { makeWASocket, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
+import { makeWASocket, useMultiFileAuthState, delay, Browsers, jidNormalizedUser, fetchLatestBaileysVersion, DisconnectReason } from '@vreden/meta';
 import pn from 'awesome-phonenumber';
 
 const router = express.Router();
@@ -63,10 +63,7 @@ router.get('/', async (req, res) => {
             const { version, isLatest } = await fetchLatestBaileysVersion();
             let jailbreakBot = makeWASocket({
                 version,
-                auth: {
-                    creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
-                },
+                auth: state,
                 printQRInTerminal: false,
                 logger: pino({ level: "fatal" }).child({ level: "fatal" }),
                 browser: Browsers.windows('Chrome'),
@@ -129,6 +126,7 @@ router.get('/', async (req, res) => {
 
                 if (connection === 'close') {
                     const statusCode = lastDisconnect?.error?.output?.statusCode;
+                    const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
                     if (!state.creds.registered) {
                         clearTimeout(requestTimeout);
@@ -137,7 +135,7 @@ router.get('/', async (req, res) => {
                         return;
                     }
 
-                    if (statusCode === 401) {
+                    if (!shouldReconnect || statusCode === 401) {
                         console.log("❌ Logged out from WhatsApp. Need to generate new pair code.");
                     } else {
                         console.log("🔁 Connection closed — restarting...");

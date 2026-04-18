@@ -1,8 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import pino from 'pino';
-import { makeWASocket, useMultiFileAuthState, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
-import { delay } from '@whiskeysockets/baileys';
+import { makeWASocket, useMultiFileAuthState, Browsers, jidNormalizedUser, fetchLatestBaileysVersion, DisconnectReason } from '@vreden/meta';
 import QRCode from 'qrcode';
 
 const router = express.Router();
@@ -96,10 +95,7 @@ router.get('/', async (req, res) => {
                 logger: pino({ level: 'silent' }),
                 browser: Browsers.windows('Chrome'), // Using Browsers enum for better compatibility
                 printQRInTerminal: false,
-                auth: {
-                    creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
-                },
+                auth: state,
                 markOnlineOnConnect: false, // Disable to reduce connection issues
                 generateHighQualityLinkPreview: false, // Disable to reduce connection issues
                 defaultQueryTimeoutMs: 60000, // Increase timeout
@@ -178,9 +174,10 @@ router.get('/', async (req, res) => {
                     }
                     
                     const statusCode = lastDisconnect?.error?.output?.statusCode;
+                    const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
                     
                     // Handle specific error codes
-                    if (statusCode === 401) {
+                    if (!shouldReconnect || statusCode === 401) {
                         console.log('🔐 Logged out - need new QR code');
                         removeFile(dirs);
                     } else if (statusCode === 515 || statusCode === 503) {
