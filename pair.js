@@ -17,9 +17,22 @@ function removeFile(FilePath) {
 }
 
 router.get('/', async (req, res) => {
+    let requestFinished = false;
+
+    const safeSend = (statusCode, payload) => {
+        if (requestFinished || res.headersSent) return;
+        requestFinished = true;
+        res.status(statusCode).send(payload);
+    };
+
+    const requestTimeout = setTimeout(() => {
+        safeSend(504, { code: 'Timed out waiting for WhatsApp pairing code. Please try again.' });
+    }, 35000);
+
     let num = req.query.number;
     if (!num) {
-        return res.status(400).send({
+        clearTimeout(requestTimeout);
+        return safeSend(400, {
             code: 'Phone number is required. Pass it as ?number=15551234567'
         });
     }
@@ -35,7 +48,8 @@ router.get('/', async (req, res) => {
     const phone = pn('+' + num);
     if (!phone.isValid()) {
         if (!res.headersSent) {
-            return res.status(400).send({ code: 'Invalid phone number. Please enter your full international number (e.g., 15551234567 for US, 447911123456 for UK, 84987654321 for Vietnam, etc.) without + or spaces.' });
+            clearTimeout(requestTimeout);
+            return safeSend(400, { code: 'Invalid phone number. Please enter your full international number (e.g., 15551234567 for US, 447911123456 for UK, 84987654321 for Vietnam, etc.) without + or spaces.' });
         }
         return;
     }
@@ -116,6 +130,13 @@ router.get('/', async (req, res) => {
                 if (connection === 'close') {
                     const statusCode = lastDisconnect?.error?.output?.statusCode;
 
+                    if (!state.creds.registered) {
+                        clearTimeout(requestTimeout);
+                        safeSend(503, { code: 'Connection closed before pairing code was generated. Please try again.' });
+                        removeFile(dirs);
+                        return;
+                    }
+
                     if (statusCode === 401) {
                         console.log("❌ Logged out from WhatsApp. Need to generate new pair code.");
                     } else {
@@ -135,26 +156,29 @@ router.get('/', async (req, res) => {
                     code = code?.match(/.{1,4}/g)?.join('-') || code;
                     if (!res.headersSent) {
                         console.log({ num, code });
-                        await res.send({ code });
+                        clearTimeout(requestTimeout);
+                        safeSend(200, { code });
                     }
                 } catch (error) {
                     console.error('Error requesting pairing code:', error);
-                    if (!res.headersSent) {
-                        res.status(503).send({ code: 'Failed to get pairing code. Please check your phone number and try again.' });
-                    }
+                    clearTimeout(requestTimeout);
+                    safeSend(503, { code: 'Failed to get pairing code. Please check your phone number and try again.' });
                 }
             }
 
             jailbreakBot.ev.on('creds.update', saveCreds);
         } catch (err) {
             console.error('Error initializing session:', err);
-            if (!res.headersSent) {
-                res.status(503).send({ code: 'Service Unavailable' });
-            }
+            clearTimeout(requestTimeout);
+            safeSend(503, { code: 'Service Unavailable' });
         }
     }
 
     await initiateSession();
+
+    if (!requestFinished) {
+        // keep timeout active while socket negotiation is in flight
+    }
 });
 
 // Global uncaught exception handler
